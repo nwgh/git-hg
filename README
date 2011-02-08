@@ -3,3 +3,9 @@ from Git. Do `git help hg` for usage information.
 
 http://github.com/todesschaf/git-hg
 http://bitbucket.org/todesschaf/git-hg
+
+This program contains bits of the following pieces of software:
+
+fast-export (MIT, git://repo.or.cz/fast-export.git)
+hg-fastimport (GPLv2, http://vc.gerg.ca/hg/hg-fastimport)
+pyfastimport (GPLv2, https://code.launchpad.net/~gward/bzr-fastimport/reusable)

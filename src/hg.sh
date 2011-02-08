@@ -7,10 +7,6 @@
 
 USAGE="git hg <command> [options]"
 
-. git-sh-setup
-
-export PY_GIT_DIR="$(git rev-parse --git-dir)"
-export PY_GIT_TOPLEVEL="$(git rev-parse --show-toplevel)"
 export PY_GIT_EDITOR="$(git var GIT_EDITOR)"
 export PY_GIT_AUTHOR_IDENT="$(git var GIT_AUTHOR_IDENT)"
 export PY_GIT_COMMITTER_IDENT="$(git var GIT_COMMITTER_IDENT)"
@@ -18,30 +14,25 @@ export PY_GIT_CONFIG="$(git config -l)"
 export PY_GIT_LIBEXEC="$(dirname $0)"
 
 case "$1" in
-	branch)
-		git hg-branch "$@"
-		;;
-	checkout)
-		git hg-checkout "$@"
-		;;
 	clone)
-		git hg-clone "$@"
-		;;
-	init)
-		git hg-init "$@"
-		;;
-	log)
-		git hg-log "$@"
-		;;
-	push)
-		git hg-push "$@"
-		;;
-	rebase)
-		git hg-rebase "$@"
-		;;
+        NONGIT_OK=Yes
+        GCMD="hg-clone"
+        ;;
+    fetch|pull|push)
+        GCMD="hg-$1"
+        ;;
 	*)
 		die "$USAGE"
 		;;
 esac
+
+. git-sh-setup
+
+if [[ -z "$NONGIT_OK" ]] ; then
+    export PY_GIT_DIR="$(git rev-parse --git-dir)"
+    export PY_GIT_TOPLEVEL="$(git rev-parse --show-toplevel)"
+fi
+
+git $GCMD "$@"
 
 exit $?

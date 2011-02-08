@@ -33,5 +33,6 @@ for k, v in os.environ.iteritems():
     elif k.startswith('PY_GIT_'):
         config[k[3:]] = v
 
-if not os.path.isabs(config['GIT_DIR']):
-    config['GIT_DIR'] = os.path.join(config['GIT_TOPLEVEL'], config['GIT_DIR'])
+if 'GIT_DIR' in config and not os.path.isabs(config['GIT_DIR']):
+    git_dir = os.path.join(config['GIT_TOPLEVEL'], config['GIT_DIR'])
+    config['GIT_DIR'] = os.path.abspath(git_dir)

@@ -1,6 +1,7 @@
 import os
 import sys
 from git_py_setup import config
+from git_hg_helpers.hg2git import hg2git
 
 def usage():
     raise Exception, 'git hg clone <repository> [<directory>]'
@@ -35,15 +36,18 @@ def main():
     config['GIT_TOPLEVEL'] = path
     config['GIT_DIR'] = os.path.join(path, '.git')
 
-    # TODO - call out to hg export helper
+    # Go back to the root of our git repo and make go on the export
+    os.chdir(path)
+    hg2git(config)
 
     return 0
 
 if __name__ == '__main__':
     rval = 1
+
     try:
         rval = main()
     except Exception, e:
-        print str(e)
+        sys.stderr.write('%s\n' % (str(e),))
 
     sys.exit(rval)

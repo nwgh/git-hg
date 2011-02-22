@@ -5,7 +5,7 @@
 # This file is licensed under a slightly modified version of the GPL v2. See the
 # file COPYING in the source distribution for details
 
-USAGE="git hg <command> [options]"
+USAGE="<command> [options]"
 
 export PY_GIT_EDITOR="$(git var GIT_EDITOR)"
 export PY_GIT_AUTHOR_IDENT="$(git var GIT_AUTHOR_IDENT)"
@@ -29,10 +29,10 @@ if [[ $PYMAJOR -eq 2 ]] ; then
 else
 	if [[ $PYMAJOR -eq 3 ]] ; then
 		if [[ $PYMINOR -lt 2 ]] ; then
-			invalid_python()
+			invalid_python
 		fi
 	else
-		invalid_python()
+		invalid_python
 	fi
 fi
 
@@ -49,9 +49,9 @@ case "$1" in
 		;;
 esac
 
-shift
-
 . git-sh-setup
+
+shift
 
 if [[ -z "$NONGIT_OK" ]] ; then
     export PY_GIT_DIR="$(git rev-parse --git-dir)"

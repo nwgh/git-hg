@@ -47,7 +47,6 @@ def hg2git(config):
             sys.stderr.write(line)
         debug.write('EXPORTER: %s' % (line,))
     for line in importer.stdout:
-        sys.stderr.write(line)
         debug.write('IMPORTER: %s' % (line,))
 
     debug.write('=' * 70)

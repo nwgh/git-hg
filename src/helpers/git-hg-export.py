@@ -336,7 +336,7 @@ def export_tags(ui, repo, old_marks, mapping_cache, ncmds):
 
         ncmds = checkpoint(ncmds)
 
-  return ncmds
+    return ncmds
 
 def verify_heads(ui, repo, cache):
     """Make sure there are no detached heads, and that our git branches have

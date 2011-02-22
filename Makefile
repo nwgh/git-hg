@@ -1,16 +1,21 @@
 PREFIX?=/usr/local
 GIT_LIBEXEC?=${PREFIX}/libexec/git-core
-GIT_MANDIR?=${PREFIX}/share/man/man1
+MANDIR?=${PREFIX}/share/man/man1
+BINDIR?=${GIT_LIBEXEC}
+OWNER?=root
 
 all:
 
-install: all
-	install -d -m 0755 -o root ${GIT_LIBEXEC}/git_hg_helpers/
-	install -m 0644 -o root src/helpers/* ${GIT_LIBEXEC}/git_hg_helpers/
-	install -m 0644 -o root src/setup.py ${GIT_LIBEXEC}/git_py_setup.py
-	install -m 0755 -o root src/hg.sh ${GIT_LIBEXEC}/git-hg
-	install -m 0755 -o root src/clone.py ${GIT_LIBEXEC}/git-hg-clone
-	install -m 0755 -o root src/fetch.py ${GIT_LIBEXEC}/git-hg-fetch
-	install -m 0755 -o root src/pull.sh ${GIT_LIBEXEC}/git-hg-pull
-	install -m 0755 -o root src/push.py ${GIT_LIBEXEC}/git-hg-push
-	install -m 0644 -o root man/git-hg.1 ${GIT_MANDIR}/git-hg.1
+install-bin: all
+	install -d -m 0755 -o ${OWNER} ${BINDIR}/
+	install -d -m 0755 -o ${OWNER} ${BINDIR}/git_hg_helpers/
+	install -m 0644 -o ${OWNER} src/helpers/* ${BINDIR}/git_hg_helpers/
+	install -m 0644 -o ${OWNER} src/setup.py ${BINDIR}/git_py_setup.py
+	install -m 0755 -o ${OWNER} src/hg.sh ${BINDIR}/git-hg
+	install -m 0755 -o ${OWNER} src/clone.py ${BINDIR}/git-hg-clone
+	install -m 0755 -o ${OWNER} src/fetch.py ${BINDIR}/git-hg-fetch
+	install -m 0755 -o ${OWNER} src/pull.py ${BINDIR}/git-hg-pull
+	install -m 0755 -o ${OWNER} src/push.py ${BINDIR}/git-hg-push
+
+install: all install-bin
+	install -m 0644 -o ${OWNER} man/git-hg.1 ${MANDIR}/git-hg.1

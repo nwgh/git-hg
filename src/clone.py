@@ -43,6 +43,9 @@ def main():
     os.chdir(args.path)
     hg2git(config)
 
+    # Finally, checkout our master branch
+    os.system('git reset --hard hg/master')
+
     return 0
 
 if __name__ == '__main__':

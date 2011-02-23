@@ -1,43 +1,46 @@
+#!/usr/bin/env python
+import argparse
 import os
 import sys
 from git_py_setup import config
 from git_hg_helpers.hg2git import hg2git
 
-def usage():
-    raise Exception, 'git hg clone <repository> [<directory>]'
-
 def main():
-    if len(sys.argv) < 2 or len(sys.argv) > 3:
-        usage()
+    ap = argparse.ArgumentParser(description='Clone an hg repository',
+        prog='git hg clone')
+    ap.add_argument('url', help='URL of HG repository')
+    ap.add_argument('path', nargs='?', help='Destination directory')
+    args = ap.parse_args(sys.argv[1:])
 
-    url = sys.argv[1]
-    if len(sys.argv) == 2:
-        path = os.path.join(os.getcwd(), os.path.basename(url))
-    else:
-        path = sys.argv[3]
+    if not args.path:
+        args.path = os.path.join(os.getcwd(), os.path.basename(args.url))
 
     # Figure out the absolute path to our repo
-    if not os.path.isabs(path):
-        path = os.path.join(os.getcwd(), path)
-    path = os.path.abspath(path)
+    if not os.path.isabs(args.path):
+        args.path = os.path.join(os.getcwd(), args.path)
+    args.path = os.path.abspath(args.path)
 
     # Create our git repo
-    os.mkdir(path)
-    os.chdir(path)
+    os.mkdir(args.path)
+    os.chdir(args.path)
     os.system('git init')
 
     # Create our bare hg repo under the git metadir
+    sys.stdout.write('Cloning hg repository\n')
+    sys.stdout.flush()
     os.chdir('.git')
     os.mkdir('hg')
     os.chdir('hg')
-    os.system('hg clone -U "%s" repo' % url)
+    os.system('hg clone -U "%s" repo' % (args.url,))
 
     # These variables were missing from our config.
-    config['GIT_TOPLEVEL'] = path
-    config['GIT_DIR'] = os.path.join(path, '.git')
+    config['GIT_TOPLEVEL'] = args.path
+    config['GIT_DIR'] = os.path.join(args.path, '.git')
 
     # Go back to the root of our git repo and make go on the export
-    os.chdir(path)
+    sys.stdout.write('Exporting hg->git (this may take a while)\n')
+    sys.stdout.flush()
+    os.chdir(args.path)
     hg2git(config)
 
     return 0

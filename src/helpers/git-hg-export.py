@@ -4,7 +4,7 @@
 # License: MIT <http://www.opensource.org/licenses/mit-license.php>
 # Fairly strongly modified by Nick Hurley <hurley@todesschaf.org>
 
-from mercurial import repo, hg, node
+from mercurial import repo, hg, node, ui
 import re
 import sys
 import os
@@ -424,7 +424,7 @@ if __name__ == '__main__':
     HEADSFILE = os.path.join(sys.argv[1], 'heads')
     TIPFILE = os.path.join(sys.argv[1], 'tip')
 
-    sys.path.prepend(sys.argv[2])
+    sys.path.insert(0, sys.argv[2])
     from hg2git import *
 
     try:

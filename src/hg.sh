@@ -18,6 +18,11 @@ if ! type python > /dev/null 2>&1 ; then
 	exit 1
 fi
 
+if ! type hg > /dev/null 2>&1 ; then
+	echo "You must have mercurial installed"
+	exit 1
+fi
+
 if ! python $PY_GIT_LIBEXEC/git_hg_helpers/check.py ; then
 	exit 1
 fi

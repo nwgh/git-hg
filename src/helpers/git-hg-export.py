@@ -86,7 +86,7 @@ def get_changeset(ui, repo, revision):
 
 def load_cache(filename, get_key=lambda k: k):
     """Read information from a cache file on disk, massaging as necessary"""
-    cache={}
+    cache = {}
     if not os.path.exists(filename):
       return cache
 

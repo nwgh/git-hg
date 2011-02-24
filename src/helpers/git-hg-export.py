@@ -419,16 +419,16 @@ def export_repo(repourl):
 if __name__ == '__main__':
     rval = 1
 
-    MARKSFILE = os.path.join(sys.argv[1], 'marks')
-    MAPPINGFILE = os.path.join(sys.argv[1], 'mapping')
-    HEADSFILE = os.path.join(sys.argv[1], 'heads')
-    TIPFILE = os.path.join(sys.argv[1], 'tip')
+    MAPPINGFILE = sys.argv[2]
+    TIPFILE = sys.argv[3]
+    MARKSFILE = sys.argv[4]
+    HEADSFILE = sys.argv[5]
 
-    sys.path.insert(0, sys.argv[2])
+    sys.path.insert(0, sys.argv[6])
     from hg2git import *
 
     try:
-        rval = export_repo(os.path.join(sys.argv[1], 'repo'))
+        rval = export_repo(sys.argv[1])
     except Exception, e:
         debug(ERR, str(e))
 

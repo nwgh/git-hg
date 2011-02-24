@@ -2,6 +2,14 @@ import os
 
 config = {}
 
+def include_hg_setup(conf):
+    conf['HG_META'] = os.path.join(conf['GIT_DIR'], 'hg')
+    conf['HG_REPO'] = os.path.join(conf['HG_META'], 'repo')
+    conf['HG_MARKS'] = os.path.join(conf['HG_META'], 'marks')
+    conf['HG_HEADS'] = os.path.join(conf['HG_META'], 'heads')
+    conf['HG_MAP'] = os.path.join(conf['HG_META'], 'mapping')
+    conf['HG_TIP'] = os.path.join(conf['HG_META'], 'tip')
+
 def __extract_name_email(info, type_):
     val = ' '.join(v.split(' ')[:-2])
     angle = val.find('<')
@@ -36,3 +44,5 @@ for k, v in os.environ.iteritems():
 if 'GIT_DIR' in config and not os.path.isabs(config['GIT_DIR']):
     git_dir = os.path.join(config['GIT_TOPLEVEL'], config['GIT_DIR'])
     config['GIT_DIR'] = os.path.abspath(git_dir)
+if 'GIT_DIR' in config:
+    include_hg_setup(config)

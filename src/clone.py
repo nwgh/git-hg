@@ -1,8 +1,9 @@
 #!/usr/bin/env python
+
 import argparse
 import os
 import sys
-from git_py_setup import config
+from git_py_setup import config, include_hg_setup
 from git_hg_helpers.hg2git import hg2git
 
 def main():
@@ -36,6 +37,7 @@ def main():
     # These variables were missing from our config.
     config['GIT_TOPLEVEL'] = args.path
     config['GIT_DIR'] = os.path.join(args.path, '.git')
+    include_hg_setup(config)
 
     # Go back to the root of our git repo and make go on the export
     sys.stdout.write('Exporting hg->git (this may take a while)\n')

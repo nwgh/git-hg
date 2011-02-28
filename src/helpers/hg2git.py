@@ -47,9 +47,8 @@ def hg2git(config):
     git repository. Also, do some nice logging so we know what happened.
     """
     helpers = os.path.join(config['GIT_LIBEXEC'], 'git_hg_helpers')
-    debugfile = os.path.join(config['HG_META'], 'debug.log')
     gfimarks = os.path.join(config['HG_META'], 'gfimarks')
-    debug = file(debugfile, 'w+')
+    debug = file(config['HG_DEBUG'], 'w+')
     dlvl = os.getenv('GIT_HG_DEBUG')
     if dlvl in DEBUG_LEVELS:
         DEBUG_LEVEL = DEBUG_LEVELS[dlvl]
@@ -70,8 +69,8 @@ def hg2git(config):
     importer = subprocess.Popen(import_args, stdin=exporter.stdout,
         stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
-    exporter.wait()
-    importer.wait()
+    estat = exporter.wait()
+    istat = importer.wait()
 
     for line in exporter.stderr:
         if line.startswith('ERR'):
@@ -85,6 +84,11 @@ def hg2git(config):
     debug.write('\n')
 
     debug.close()
+
+    if estat:
+        sys.stderr.write('Some error occurred exporting from hg\n')
+    if istat:
+        sys.stderr.write('Some error occurred importing to git\n')
 
     os.chdir(config['GIT_TOPLEVEL'])
     update_heads(config['HG_HEADS'])

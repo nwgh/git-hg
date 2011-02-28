@@ -9,6 +9,9 @@ def include_hg_setup(conf):
     conf['HG_HEADS'] = os.path.join(conf['HG_META'], 'heads')
     conf['HG_MAP'] = os.path.join(conf['HG_META'], 'mapping')
     conf['HG_TIP'] = os.path.join(conf['HG_META'], 'tip')
+    conf['HG_DEBUG'] = os.path.join(conf['HG_META'], 'debug.log')
+    conf['HG_FASTIMPORT'] = os.path.join(conf['GIT_LIBEXEC'], 'git_hg_helpers',
+        'hgfastimport')
 
 def __extract_name_email(info, type_):
     val = ' '.join(v.split(' ')[:-2])

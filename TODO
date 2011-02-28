@@ -1,0 +1,4 @@
+*Write push
+*Make cloning/pulling(/pushing?) fork less
+*Make pull actually pull instead of just fetch (optionally - get rid of pull)
+*Write hook to prevent people from committing directly to hg/* branches

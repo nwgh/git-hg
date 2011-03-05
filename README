@@ -2,10 +2,22 @@ This is a SIMPLE wrapper to allow read/write access to Mercurial repositories
 from Git. Do `git help hg` for usage information.
 
 http://github.com/todesschaf/git-hg
-http://bitbucket.org/todesschaf/git-hg
+http://bitbucket.org/todesschaf/git-hg (not up yet)
 
 This program contains bits of the following pieces of software:
 
 fast-export (MIT, git://repo.or.cz/fast-export.git)
 hg-fastimport (GPLv2, http://vc.gerg.ca/hg/hg-fastimport)
 pyfastimport (GPLv2, https://code.launchpad.net/~gward/bzr-fastimport/reusable)
+
+WARNING!! WARNUNG!! AVERTISSEMENT!! ADVERTENCIA!! WAARSCHUWING!! AVVERTIMENTO!!
+
+This software is VERY MUCH under HEAVY development. Even though I don't have
+much time to work on it (and thus may not commit for a few days or weeks), don't
+expect the code to look the same from one commit to the next (at least until
+this warning is gone from the README).
+
+Things that don't work:
+Pull (it'll fetch, just won't update your current branch)
+Push (won't do much of anything).
+Possibly other things!

@@ -3,3 +3,4 @@
 *Progress indicator for export from hg->git
 *Make pull actually pull instead of just fetch (optionally - get rid of pull)
 *Write hook to prevent people from committing directly to hg/* branches
+*Contemplate using hg-git instead of hg-fast-export

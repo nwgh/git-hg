@@ -1,41 +1,39 @@
 #!/usr/bin/env python
+#
+# Copyright (c) 2011 Nick Hurley <hurley at todesschaf dot org>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of version 2 of the GNU General Public License as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 import argparse
 import os
 import sys
-from git_py_setup import config
-from git_hg_helpers.hg2git import hg2git
 
+import ghg
+
+@ghg.main
 def main():
     ap = argparse.ArgumentParser(description='Fetch updates from hg',
         prog='git hg fetch')
     args = ap.parse_args(sys.argv[1:])
 
-    metadir = os.path.join(config['GIT_DIR'], 'hg')
-    repodir = os.path.join(metadir, 'repo')
-
     # Do some sanity checks to make sure we're where we think we are
-    if not os.path.exists(metadir) or not os.path.exists(repodir):
-        sys.stderr.write('This does not appear to be a git-hg repository\n')
-        return 1
+    ghg.ensure_is_ghg()
 
-    # Get changes from hg upstream
-    os.chdir(repodir)
-    os.system('hg pull')
+    # Update the private remote git repo
+    ghg.update_remote()
 
-    # Pull those changes into our git repo
-    os.chdir(config['GIT_TOPLEVEL'])
-    hg2git(config)
+    # Now fetch those changes into our local repo
+    os.system('git fetch hg')
 
-    # We don't update any local branches since this is just fetch
     return 0
-
-if __name__ == '__main__':
-    rval = 1
-
-    try:
-        rval = main()
-    except Exception, e:
-        sys.stderr.write('%s\n' % (e,))
-
-    sys.exit(rval)

@@ -8,9 +8,8 @@ all:
 
 install-bin: all
 	install -d -m 0755 -o ${OWNER} ${BINDIR}/
-	install -d -m 0755 -o ${OWNER} ${BINDIR}/git_hg_helpers/
-	install -m 0644 -o ${OWNER} src/helpers/* ${BINDIR}/git_hg_helpers/
-	install -m 0644 -o ${OWNER} src/setup.py ${BINDIR}/git_py_setup.py
+	install -d -m 0755 -o ${OWNER} ${BINDIR}/ghg/
+	install -m 0644 -o ${OWNER} src/helpers/* ${BINDIR}/ghg/
 	install -m 0755 -o ${OWNER} src/hg.sh ${BINDIR}/git-hg
 	install -m 0755 -o ${OWNER} src/clone.py ${BINDIR}/git-hg-clone
 	install -m 0755 -o ${OWNER} src/fetch.py ${BINDIR}/git-hg-fetch

@@ -40,7 +40,7 @@ def main():
     # Make sure we'll error if things have changed somewhere else
     ghg.update_remote()
 
-    debug = file(ghg.config['HG_DEBUG'], 'w+')
+    debug = file(ghg.config['HG_DEBUG'], 'a')
     debug.write('=' * 70)
     debug.write('\n')
     start = int(time.time())
@@ -49,13 +49,13 @@ def main():
     debug.write('HG BRANCH: %s\n' % (args.hgbranch,))
     debug.write('\n')
 
-    cmd = 'git push hg %s:%s' % (args.gitbranch, args.hgbranch)
+    cmd = 'git push hg %s:hg/%s' % (args.gitbranch, args.hgbranch)
     debug.write('=> %s\n' % cmd)
     os.system(cmd)
     debug.write('\n')
 
     import_args = ['hg', '--debug', '-v', '--config', 'extensions.hggit=',
-                   'pull', ghg.config['HG_GIT_REPO']]
+                   'gimport']
     debug.write('=> %s\n' % ' '.join(import_args))
     importer = subprocess.Popen(import_args, stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT, cwd=ghg.config['HG_REPO'])

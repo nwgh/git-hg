@@ -19,6 +19,7 @@ import os
 import subprocess
 import sys
 import time
+import traceback
 
 config = {}
 
@@ -49,7 +50,7 @@ def hg2git():
     """Using hg-git, export a private hg repo into a private git repository.
     Also, do some nice logging so we know what happened.
     """
-    debug = file(config['HG_DEBUG'], 'w+')
+    debug = file(config['HG_DEBUG'], 'a')
 
     debug.write('=' * 70)
     debug.write('\n')
@@ -57,9 +58,24 @@ def hg2git():
     debug.write('STARTING HG->GIT EXPORT @ %s\n' % (time.ctime(start).upper(),))
     debug.write('\n')
 
+    # Bookmark all our branches
+    branches = subprocess.Popen(['hg', 'branches'], stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE, cwd=config['HG_REPO'])
+    for line in branches.stdout:
+        branch, _ = line.strip().split(' ', 1)
+        if branch == 'default':
+            gbranch = 'master'
+        else:
+            gbranch = branch
+        marker = subprocess.Popen(['hg', 'bookmark', '-f', '-r', branch,
+            'hg/%s' % gbranch], stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            cwd=config['HG_REPO'])
+        marker.wait()
+    branches.wait()
+
     # Start the exporter, using our provided hg-git
     export_args = ['hg', '--debug', '-v', '--config', 'extensions.hggit=',
-                   'push', config['HG_GIT_REPO']]
+                   'gexport']
     exporter = subprocess.Popen(export_args, stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT, cwd=config['HG_REPO'])
 
@@ -93,10 +109,9 @@ def include_hg_setup():
     """
     config['HG_META'] = os.path.join(config['GIT_DIR'], 'hg')
     config['HG_REPO'] = os.path.join(config['HG_META'], 'repo')
-    config['HG_GIT_REPO'] = os.path.join(config['HG_META'], 'repo.git')
+    config['HG_GIT_REPO'] = os.path.join(config['HG_REPO'], '.git')
     config['HG_DEBUG'] = os.path.join(config['HG_META'], 'debug.log')
     config['HG_PYPATH'] = os.path.join(config['GIT_LIBEXEC'], 'ghg')
-    config['HG_HGGIT'] = os.path.join(config['HG_PYPATH'], 'hggit')
 
 def __extract_name_email(info, type_):
     """Extract a name and email from a string in the form:
@@ -156,5 +171,8 @@ def main(_main):
             rval = _main()
         except Exception, e:
             sys.stdout.write('%s\n' % str(e))
+            f = file('ghg.tb', 'w')
+            traceback.print_tb(sys.exc_info()[2], None, f)
+            f.close()
         sys.exit(rval)
     return _main

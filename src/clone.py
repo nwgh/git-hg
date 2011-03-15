@@ -18,6 +18,10 @@
 import argparse
 import os
 import sys
+if sys.version_info.major == 2:
+    import ConfigParser as cp
+else:
+    import configparser as cp
 
 import ghg
 
@@ -49,14 +53,21 @@ def main():
     os.mkdir('hg')
     os.chdir('hg')
     os.system('hg clone -U "%s" repo' % (args.url,))
+
+    # Configure hg-git to put our .git directory alongside our .hg directory
     os.chdir('repo')
-    os.system('hg bookmark -r default master')
+    os.chdir('.hg')
+    conf = cp.RawConfigParser()
+    conf.read('hgrc')
+    conf.add_section('git')
+    conf.set('git', 'intree', 'True')
+    with file('hgrc', 'w') as f:
+        conf.write(f)
 
     # These variables were missing from our config.
     ghg.config['GIT_TOPLEVEL'] = args.path
     ghg.config['GIT_DIR'] = os.path.join(args.path, '.git')
     ghg.include_hg_setup()
-    os.system('git init --bare %s' % (ghg.config['HG_GIT_REPO'],))
 
     # Go back to the root of our git repo and make go on the export
     sys.stdout.write('Exporting hg->git (this may take a while)\n')
@@ -70,7 +81,8 @@ def main():
     if os.path.split(ghg.config['GIT_TOPLEVEL'])[-1]:
         start += 1
     remote_path = ghg.config['HG_GIT_REPO'][start:]
-    os.system('git remote add hg %s' % (remote_path,))
+    os.system('git config remote.hg.url %s' % (remote_path,))
+    os.system('git config remote.hg.fetch +refs/heads/hg/*:refs/remotes/hg/*')
 
     # Get all the info from our private remote
     os.system('git fetch hg')

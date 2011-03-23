@@ -25,30 +25,31 @@ export PY_GIT_LIBEXEC="$(dirname $0)"
 export PYTHONPATH="$PY_GIT_LIBEXEC"/ghg:$PY_GIT_LIBEXEC:$PYTHONPATH
 
 if ! type python > /dev/null 2>&1 ; then
-	echo "You must have python (>= 2.7 or >= 3.2) installed"
-	exit 1
+    echo "You must have python (>= 2.7 or >= 3.2) installed"
+    exit 1
 fi
 
 if ! type hg > /dev/null 2>&1 ; then
-	echo "You must have mercurial installed"
-	exit 1
+    echo "You must have mercurial installed"
+    exit 1
 fi
 
 if ! python $PY_GIT_LIBEXEC/ghg/check.py ; then
-	exit 1
+    exit 1
 fi
 
 case "$1" in
-	clone)
+    clone)
         NONGIT_OK=Yes
         GCMD="hg-clone"
         ;;
     fetch|pull|push)
         GCMD="hg-$1"
         ;;
-	*)
-		die "$USAGE"
-		;;
+    *)
+        NONGIT_OK=Yes . git-sh-setup
+        die "$USAGE"
+        ;;
 esac
 
 . git-sh-setup

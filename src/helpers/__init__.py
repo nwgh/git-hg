@@ -39,11 +39,20 @@ def update_remote():
     private git remote.
     """
     # Get changes from hg upstream
-    os.chdir(config['HG_REPO'])
-    os.system('hg pull')
+    hg = subprocess.Popen(['hg', 'pull'], stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT, cwd=config['HG_REPO'], bufsize=1)
+    for line in hg.stdout:
+        # Don't want to show the "(run 'hg update' to get a working copy)" line
+        if not line.startswith('('):
+            # Let's not confuse git users with mercurial's terminology
+            if line.startswith('pulling'):
+                line = line.replace('pulling ', 'fetching ')
+            sys.stdout.write('HG: %s' % (line,))
+            sys.stdout.flush()
 
     # Push those changes into our git remote
-    os.chdir(config['GIT_TOPLEVEL'])
+    sys.stdout.write('Converting hg->git (this may take a while)\n')
+    sys.stdout.flush()
     hg2git()
 
 def hg2git():
@@ -60,7 +69,7 @@ def hg2git():
 
     # Bookmark all our branches
     branches = subprocess.Popen(['hg', 'branches'], stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE, cwd=config['HG_REPO'])
+        stderr=subprocess.PIPE, cwd=config['HG_REPO'], bufsize=1)
     for line in branches.stdout:
         branch, _ = line.strip().split(' ', 1)
         if branch == 'default':
@@ -69,7 +78,7 @@ def hg2git():
             gbranch = branch
         marker = subprocess.Popen(['hg', 'bookmark', '-f', '-r', branch,
             'hg/%s' % gbranch], stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-            cwd=config['HG_REPO'])
+            cwd=config['HG_REPO'], bufsize=1)
         marker.wait()
     branches.wait()
 
@@ -77,15 +86,19 @@ def hg2git():
     export_args = ['hg', '--debug', '-v', '--config', 'extensions.hggit=',
                    'gexport']
     exporter = subprocess.Popen(export_args, stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT, cwd=config['HG_REPO'])
+        stderr=subprocess.STDOUT, cwd=config['HG_REPO'], bufsize=1)
 
+    ncommits = None
     for line in exporter.stdout:
         if line.startswith('importing: '):
             bits = line.strip().split()
             if len(bits) > 2:
+                cur_commit, ncommits = map(int, bits[1].split('/'))
+                cur_commit += 1
+                pct = int(float(cur_commit * 100) / float(ncommits))
                 sys.stdout.write('\r%s' % (' ' * 70,))
-                sys.stdout.write('\rImporting revision %s %s' %
-                    (bits[1], bits[2]))
+                sys.stdout.write('\rImporting revision %s/%s (%s%%)' %
+                    (cur_commit, ncommits, pct))
                 sys.stdout.flush()
         debug.write(line)
     sys.stdout.write('\n')

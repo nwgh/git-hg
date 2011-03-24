@@ -70,7 +70,7 @@ def main():
     ghg.include_hg_setup()
 
     # Go back to the root of our git repo and make go on the export
-    sys.stdout.write('Exporting hg->git (this may take a while)\n')
+    sys.stdout.write('Converting hg->git (this may take a while)\n')
     sys.stdout.flush()
     os.chdir(args.path)
     ghg.hg2git()

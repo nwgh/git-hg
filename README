@@ -1,8 +1,13 @@
 This is a SIMPLE wrapper to allow read/write access to Mercurial repositories
 from Git. Do `git help hg` for usage information.
 
-http://github.com/todesschaf/git-hg
-http://bitbucket.org/todesschaf/git-hg (not up yet)
+Why did I write this? Because I work somewhere that uses hg, but I prefer git,
+and I didn't want to jump through a lot of hoops manually using hg-git to use
+my preferred DSCM. So, I wrote this to streamline my process a bit. It may or
+may not work for you, but it works for me, and that's what matters to me.
+
+The official source distribution is at:
+  https://github.com/todesschaf/git-hg
 
 This program contains bits of the following pieces of software:
 
@@ -15,10 +20,16 @@ This program requires the following pieces of software:
   mercurial
   dulwich
   hg-git
+  pgl (https://github.com/todesschaf/pgl)
 
 Things that don't work:
   Pushing to a new hg repo
-  Possibly other things!
+  Probably other things!
 
 This program is released under the GNU General Public License v2 ONLY. See the
 file COPYING in this directory for terms and such.
+
+Why did I write this? Because I work somewhere that uses hg, but I prefer git,
+and I didn't want to jump through a lot of hoops manually using hg-git to use
+my preferred DSCM. So, I wrote this to streamline my process a bit. It may or
+may not work for you, but it works for me, and that's what matters to me.

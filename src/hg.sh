@@ -17,12 +17,9 @@
 
 USAGE="<command> [options]"
 
-export PY_GIT_EDITOR="$(git var GIT_EDITOR)"
-export PY_GIT_AUTHOR_IDENT="$(git var GIT_AUTHOR_IDENT)"
-export PY_GIT_COMMITTER_IDENT="$(git var GIT_COMMITTER_IDENT)"
-export PY_GIT_CONFIG="$(git config -l)"
-export PY_GIT_LIBEXEC="$(dirname $0)"
-export PYTHONPATH="$PY_GIT_LIBEXEC"/ghg:$PY_GIT_LIBEXEC:$PYTHONPATH
+GIT_LIBEXEC="$(git --exec-path)"
+
+export PYTHONPATH="$GIT_LIBEXEC"/ghg:$GIT_LIBEXEC:$PYTHONPATH
 
 if ! type python > /dev/null 2>&1 ; then
     echo "You must have python (>= 2.7 or >= 3.2) installed"
@@ -34,7 +31,7 @@ if ! type hg > /dev/null 2>&1 ; then
     exit 1
 fi
 
-if ! python $PY_GIT_LIBEXEC/ghg/check.py ; then
+if ! python $GIT_LIBEXEC/ghg/check.py ; then
     exit 1
 fi
 
@@ -56,12 +53,5 @@ esac
 
 shift
 
-if [[ -z "$NONGIT_OK" ]] ; then
-    export PY_GIT_DIR="$(git rev-parse --git-dir)"
-    export PY_GIT_TOPLEVEL="$(git rev-parse --show-toplevel)"
-fi
-
-git $GCMD "$@"
-
-exit $?
+exec git $GCMD "$@"
 # vim: set noexpandtab:

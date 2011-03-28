@@ -21,17 +21,17 @@ import sys
 import time
 import traceback
 
-config = {}
+import pgl
 
 def ensure_is_ghg():
     """Ensure we've calculated a git-hg repository correctly. Raises an
     exception if we haven't, otherwise succeeds silently.
     """
-    if not os.path.exists(config['HG_META']):
+    if not os.path.exists(pgl.config['HG_META']):
         raise Exception, 'This does not appear to be a git-hg repo (HM)'
-    if not os.path.exists(config['HG_REPO']):
+    if not os.path.exists(pgl.config['HG_REPO']):
         raise Exception, 'This does not appear to be a git-hg repo (HR)'
-    if not os.path.exists(config['HG_GIT_REPO']):
+    if not os.path.exists(pgl.config['HG_GIT_REPO']):
         raise Exception, 'This does not appear to be a git-hg repo (GR)'
 
 def update_remote():
@@ -40,7 +40,7 @@ def update_remote():
     """
     # Get changes from hg upstream
     hg = subprocess.Popen(['hg', 'pull'], stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT, cwd=config['HG_REPO'], bufsize=1)
+        stderr=subprocess.STDOUT, cwd=pgl.config['HG_REPO'], bufsize=1)
     for line in hg.stdout:
         # Don't want to show the "(run 'hg update' to get a working copy)" line
         if not line.startswith('('):
@@ -59,7 +59,7 @@ def hg2git():
     """Using hg-git, export a private hg repo into a private git repository.
     Also, do some nice logging so we know what happened.
     """
-    debug = file(config['HG_DEBUG'], 'a')
+    debug = file(pgl.config['HG_DEBUG'], 'a')
 
     debug.write('=' * 70)
     debug.write('\n')
@@ -69,7 +69,7 @@ def hg2git():
 
     # Bookmark all our branches
     branches = subprocess.Popen(['hg', 'branches'], stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE, cwd=config['HG_REPO'], bufsize=1)
+        stderr=subprocess.PIPE, cwd=pgl.config['HG_REPO'], bufsize=1)
     for line in branches.stdout:
         branch, _ = line.strip().split(' ', 1)
         if branch == 'default':
@@ -78,7 +78,7 @@ def hg2git():
             gbranch = branch
         marker = subprocess.Popen(['hg', 'bookmark', '-f', '-r', branch,
             'hg/%s' % gbranch], stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-            cwd=config['HG_REPO'], bufsize=1)
+            cwd=pgl.config['HG_REPO'], bufsize=1)
         marker.wait()
     branches.wait()
 
@@ -86,7 +86,7 @@ def hg2git():
     export_args = ['hg', '--debug', '-v', '--config', 'extensions.hggit=',
                    'gexport']
     exporter = subprocess.Popen(export_args, stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT, cwd=config['HG_REPO'], bufsize=1)
+        stderr=subprocess.STDOUT, cwd=pgl.config['HG_REPO'], bufsize=1)
 
     ncommits = None
     for line in exporter.stdout:
@@ -118,74 +118,10 @@ def hg2git():
     debug.close()
 
 def include_hg_setup():
-    """Add the git-hg specific portions of our setup into the config dict.
+    """Add the git-hg specific portions of our setup into the pgl.config dict.
     """
-    config['HG_META'] = os.path.join(config['GIT_DIR'], 'hg')
-    config['HG_REPO'] = os.path.join(config['HG_META'], 'repo')
-    config['HG_GIT_REPO'] = os.path.join(config['HG_REPO'], '.git')
-    config['HG_DEBUG'] = os.path.join(config['HG_META'], 'debug.log')
-    config['HG_PYPATH'] = os.path.join(config['GIT_LIBEXEC'], 'ghg')
-
-def __extract_name_email(info, type_):
-    """Extract a name and email from a string in the form:
-           User Name <user@example.com>
-       Stick that into our config dict for either git committer or git author.
-    """
-    val = ' '.join(info.split(' ')[:-2])
-    angle = val.find('<')
-    if angle > -1:
-        config['GIT_%s_NAME' % type_] = val[:angle - 1]
-        config['GIT_%s_EMAIL' % type_] = val[angle + 1:-1]
-    else:
-        config['GIT_%s_NAME' % type_] = val
-
-def __create_config():
-    """Create our configuration dict from the env variables we're given.
-    """
-    for k, v in os.environ.iteritems():
-        if k == 'PY_GIT_CONFIG':
-            cfgs = v.split('\n')
-            for cfg in cfgs:
-                var, val = cfg.split('=', 1)
-                if val == 'true':
-                    val = True
-                elif val == 'false':
-                    val = False
-                else:
-                    try:
-                        val = int(val)
-                    except:
-                        pass
-                config[var] = val
-        elif k == 'PY_GIT_COMMITTER_IDENT':
-            __extract_name_email(v, 'COMMITTER')
-        elif k == 'PY_GIT_AUTHOR_IDENT':
-            __extract_name_email(v, 'AUTHOR')
-        elif k.startswith('PY_GIT_'):
-            config[k[3:]] = v
-
-    if 'GIT_DIR' in config and not os.path.isabs(config['GIT_DIR']):
-        git_dir = os.path.join(config['GIT_TOPLEVEL'], config['GIT_DIR'])
-        config['GIT_DIR'] = os.path.abspath(git_dir)
-    if 'GIT_DIR' in config:
-        include_hg_setup()
-
-def main(_main):
-    """Mark a function as the main function for our git-hg subprogram. Based
-    very heavily on automain by Gerald Kaszuba, but with modifications to make
-    it work better for git-hg's purposes.
-    """
-    parent = inspect.stack()[1][0]
-    name = parent.f_locals.get('__name__', None)
-    if name == '__main__':
-        __create_config()
-        rval = 1
-        try:
-            rval = _main()
-        except Exception, e:
-            sys.stdout.write('%s\n' % str(e))
-            f = file('ghg.tb', 'w')
-            traceback.print_tb(sys.exc_info()[2], None, f)
-            f.close()
-        sys.exit(rval)
-    return _main
+    pgl.config['HG_META'] = os.path.join(pgl.config['GIT_DIR'], 'hg')
+    pgl.config['HG_REPO'] = os.path.join(pgl.config['HG_META'], 'repo')
+    pgl.config['HG_GIT_REPO'] = os.path.join(pgl.config['HG_REPO'], '.git')
+    pgl.config['HG_DEBUG'] = os.path.join(pgl.config['HG_META'], 'debug.log')
+    pgl.config['HG_PYPATH'] = os.path.join(pgl.config['GIT_LIBEXEC'], 'ghg')

@@ -22,8 +22,9 @@ import sys
 import time
 
 import ghg
+import pgl
 
-@ghg.main
+@pgl.main
 def main():
     ap = argparse.ArgumentParser(description='Push to an hg repository',
         prog='git hg push')
@@ -34,13 +35,16 @@ def main():
     if not args.hgbranch:
         args.hgbranch = args.gitbranch
 
+    # Make sure our config dict contains the stuff we need
+    ghg.include_hg_setup()
+
     # Do some sanity checks to make sure we're where we think we are
     ghg.ensure_is_ghg()
 
     # Make sure we'll error if things have changed somewhere else
     ghg.update_remote()
 
-    debug = file(ghg.config['HG_DEBUG'], 'a')
+    debug = file(pgl.config['HG_DEBUG'], 'a')
     debug.write('=' * 70)
     debug.write('\n')
     start = int(time.time())
@@ -58,7 +62,7 @@ def main():
                    'gimport']
     debug.write('=> %s\n' % ' '.join(import_args))
     importer = subprocess.Popen(import_args, stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT, cwd=ghg.config['HG_REPO'])
+        stderr=subprocess.STDOUT, cwd=pgl.config['HG_REPO'])
 
     for line in importer.stdout:
         if line.startswith('importing: '):
@@ -78,7 +82,7 @@ def main():
         sys.stderr.write('Some error occurred exporting to hg\n')
     else:
         oldcwd = os.getcwd()
-        os.chdir(ghg.config['HG_REPO'])
+        os.chdir(pgl.config['HG_REPO'])
         rval = os.system('hg push')
         os.chdir(oldcwd)
 

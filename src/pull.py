@@ -20,12 +20,16 @@ import os
 import sys
 
 import ghg
+import pgl
 
-@ghg.main
+@pgl.main
 def main():
     ap = argparse.ArgumentParser(description='Pull updates from hg',
         prog='git hg pull')
     args = ap.parse_args(sys.argv[1:])
+
+    # Make sure our config dict contains the stuff we need
+    ghg.include_hg_setup()
 
     # Do some sanity checks to make sure we're where we think we are
     ghg.ensure_is_ghg()

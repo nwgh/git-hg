@@ -24,8 +24,9 @@ else:
     import configparser as cp
 
 import ghg
+import pgl
 
-@ghg.main
+@pgl.main
 def main():
     ap = argparse.ArgumentParser(description='Clone an hg repository',
         prog='git hg clone')
@@ -65,8 +66,8 @@ def main():
         conf.write(f)
 
     # These variables were missing from our config.
-    ghg.config['GIT_TOPLEVEL'] = args.path
-    ghg.config['GIT_DIR'] = os.path.join(args.path, '.git')
+    pgl.config['GIT_TOPLEVEL'] = args.path
+    pgl.config['GIT_DIR'] = os.path.join(args.path, '.git')
     ghg.include_hg_setup()
 
     # Go back to the root of our git repo and make go on the export
@@ -77,10 +78,10 @@ def main():
 
     # Create hg remote for local repo
     os.chdir(args.path)
-    start = len(ghg.config['GIT_TOPLEVEL'])
-    if os.path.split(ghg.config['GIT_TOPLEVEL'])[-1]:
+    start = len(pgl.config['GIT_TOPLEVEL'])
+    if os.path.split(pgl.config['GIT_TOPLEVEL'])[-1]:
         start += 1
-    remote_path = ghg.config['HG_GIT_REPO'][start:]
+    remote_path = pgl.config['HG_GIT_REPO'][start:]
     os.system('git config remote.hg.url %s' % (remote_path,))
     os.system('git config remote.hg.fetch +refs/heads/hg/*:refs/remotes/hg/*')
 

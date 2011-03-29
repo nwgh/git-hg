@@ -17,10 +17,6 @@
 
 USAGE="<command> [options]"
 
-GIT_LIBEXEC="$(git --exec-path)"
-
-export PYTHONPATH="$GIT_LIBEXEC"/ghg:$GIT_LIBEXEC:$PYTHONPATH
-
 if ! type python > /dev/null 2>&1 ; then
     echo "You must have python (>= 2.7 or >= 3.2) installed"
     exit 1
@@ -31,7 +27,7 @@ if ! type hg > /dev/null 2>&1 ; then
     exit 1
 fi
 
-if ! python $GIT_LIBEXEC/ghg/check.py ; then
+if ! python -m ghg.check ; then
     exit 1
 fi
 

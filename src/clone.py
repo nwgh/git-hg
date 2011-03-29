@@ -85,6 +85,12 @@ def main():
     os.system('git config remote.hg.url %s' % (remote_path,))
     os.system('git config remote.hg.fetch +refs/heads/hg/*:refs/remotes/hg/*')
 
+    # Set up our master branch to track hg's default
+    os.system('git config branch.master.remote hg')
+    os.system('git config branch.master.merge refs/heads/hg/master')
+    if pgl.config.get('branch.autosetuprebase', None) in ('remote', 'always'):
+        os.system('git config branch.master.rebase true')
+
     # Get all the info from our private remote
     os.system('git fetch hg')
 
